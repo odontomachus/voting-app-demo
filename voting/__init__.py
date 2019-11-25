@@ -86,6 +86,11 @@ class ResultsHandler(RequestHandler):
 
 
 def main():
+    import os
+    try:
+        port = int(os.environ.get('SVC_PORT'), 8080)
+    except Exception:
+        port = 8080
     app = Application([
         ("/votes", VotesHandler),
         ("/results", ResultsHandler),
@@ -95,7 +100,7 @@ def main():
         "version": 0,
         "tally": defaultdict(int),
     }
-    app.listen(8387)
+    app.listen(port)
     tornado.ioloop.IOLoop.current().start()
 
 
