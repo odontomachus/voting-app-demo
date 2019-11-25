@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 
 requirements = [
     'tornado>=6.0',
+    'python-jose>=3.0',
 ]
 
 with open('README.md') as rm:
