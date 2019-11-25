@@ -25,14 +25,21 @@ ISSUER = "https://iam.humanbrainproject.eu/auth/realms/hbp"
 
 def bearer_authtenticated(fn: callable) -> callable:
     def wrapped(self: RequestHandler, *args, **kwargs):
-        bearer = self.request.headers["authorization"].split(" ")[1]
-        payload = jwt.decode(
-            bearer,
-            KEYS,
-            algorithms=["RS256"],
-            issuer=ISSUER,
-            options={"verify_aud": False},
-        )
+        try:
+            bearer = self.request.headers["authorization"].split(" ")[1]
+        except Exception:
+            self.write("Requires authorization with a Bearer token")
+            raise HTTPError(401, f"Authorization failed, no header")
+        try:
+            payload = jwt.decode(
+                bearer,
+                KEYS,
+                algorithms=["RS256"],
+                issuer=ISSUER,
+                options={"verify_aud": False},
+            )
+        except jwt.JWTError as e:
+            raise HTTPError(401, f"Authorization failed {e}")
         user = payload["preferred_username"]
         return fn(self, user, *args, **kwargs)
 
